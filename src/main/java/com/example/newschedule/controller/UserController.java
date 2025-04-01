@@ -5,6 +5,7 @@ import com.example.newschedule.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,8 +14,16 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
 
+    @PostMapping("/signIn")
+    public JwtTokenDto signIn(@RequestBody @Validated SignInRequestDto dto){
+        String mail = dto.getMail();
+        String password = dto.getPassword();
+
+        return userService.signIn(mail, password);
+    }
+
     @PostMapping
-    public ResponseEntity<UserResponseDto> saveUser(@RequestBody SaveUserRequestDto dto){
+    public ResponseEntity<UserResponseDto> saveUser(@RequestBody @Validated SaveUserRequestDto dto){
         UserResponseDto userResponseDto = userService.saveUser(dto.getName(), dto.getMail(), dto.getPassword());
         return new ResponseEntity<>(userResponseDto, HttpStatus.CREATED);
     }
@@ -26,19 +35,19 @@ public class UserController {
     }
 
     @PatchMapping("/password/{id}")
-    public ResponseEntity<Void> updatePassword(@PathVariable Long id, @RequestBody UpdateUserPasswordRequestDto dto){
+    public ResponseEntity<Void> updatePassword(@PathVariable Long id, @RequestBody @Validated UpdateUserPasswordRequestDto dto){
         userService.updatePassword(id, dto.getOldPassword(), dto.getNewPassword());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PatchMapping("/mail/{id}")
-    public ResponseEntity<Void> updateMail(@PathVariable Long id, @RequestBody UpdateUserEmailRequestDto dto){
+    public ResponseEntity<Void> updateMail(@PathVariable Long id, @RequestBody @Validated UpdateUserEmailRequestDto dto){
         userService.updateMail(id, dto.getPassword(), dto.getMail());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id, @RequestBody DeleteUserRequestDto dto){
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id, @RequestBody @Validated DeleteUserRequestDto dto){
         userService.deleteUser(id, dto.getPassword());
         return new ResponseEntity<>(HttpStatus.OK);
     }

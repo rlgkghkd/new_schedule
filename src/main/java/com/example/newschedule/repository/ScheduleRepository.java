@@ -10,4 +10,5 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     default Schedule findByIdOrElseThrow(Long id){
         return findById(id).orElseThrow(() ->new ResponseStatusException(HttpStatus.NOT_FOUND, "No schedule has such id " + id));
     }
+
 }
