@@ -42,11 +42,8 @@ public class JwtTokenProvider {
 
     public Authentication getAuthen(String accToken){
         Claims claims = parseClaims(accToken);
-        System.out.println(claims);
         if (claims.get("auth") == null){ throw new RuntimeException("권한이 없는 토큰입니다.");}
-
         Collection<? extends GrantedAuthority> autho = Arrays.stream(claims.get("auth").toString().split(",")).map(SimpleGrantedAuthority::new).toList();
-
         UserDetails principal = new User(claims.getSubject(), "", autho);
         return new UsernamePasswordAuthenticationToken(principal, "", autho);
     }

@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -18,22 +19,21 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class UserService {
 
+    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
 
     @Transactional
     public JwtTokenDto signIn(String mail, String password){
-
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(mail, password);
-
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        System.out.println(authentication.getAuthorities());
+
         return jwtTokenProvider.makeToken(authentication);
     }
 
     public UserResponseDto saveUser(String userName, String mail, String password) {
-        User user= new User(userName, mail, password, "USER", "asd", "qweqwe");
+        User user= new User(userName, mail, passwordEncoder.encode(password), "USER", "asd", "qweqwe");
         return new UserResponseDto(userRepository.save(user));
     }
 
