@@ -29,7 +29,7 @@ public class UserController {
         return new ResponseEntity<>(userResponseDto, HttpStatus.CREATED);
     }
 
-    @GetMapping
+    @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> findById(@PathVariable Long id){
         UserResponseDto userResponseDto= userService.findById(id);
         return new ResponseEntity<>(userResponseDto, HttpStatus.FOUND);
@@ -47,7 +47,7 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping
     public ResponseEntity<Void> deleteUser(@RequestBody @Validated DeleteUserRequestDto dto, HttpServletRequest request){
         userService.deleteUser(request, dto.getPassword());
         return new ResponseEntity<>(HttpStatus.OK);

@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
+
     default User findByIdOrElseThrow(Long id){
         return findById(id).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "No User has such id " + id));
     }

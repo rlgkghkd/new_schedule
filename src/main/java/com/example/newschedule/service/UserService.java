@@ -45,10 +45,7 @@ public class UserService {
 
     @Transactional
     public void updatePassword(HttpServletRequest request, String oldPassword, String newPassword) {
-
-        String token = request.getHeader("Authorization").substring(7);
-        String sub = jwtTokenProvider.getTokenSubject(token);
-        User user = userRepository.findUserByMailOrElseThrow(sub);
+        User user = getUserByToken(request);
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
@@ -58,9 +55,7 @@ public class UserService {
 
     @Transactional
     public void updateMail(HttpServletRequest request, String password, String mail) {
-        String token = request.getHeader("Authorization").substring(7);
-        String sub = jwtTokenProvider.getTokenSubject(token);
-        User user = userRepository.findUserByMailOrElseThrow(sub);
+        User user = getUserByToken(request);
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
@@ -70,13 +65,17 @@ public class UserService {
 
     @Transactional
     public void deleteUser(HttpServletRequest request, String password) {
-        String token = request.getHeader("Authorization").substring(7);
-        String sub = jwtTokenProvider.getTokenSubject(token);
-        User user = userRepository.findUserByMailOrElseThrow(sub);
+        User user = getUserByToken(request);
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
         if (!encoder.matches(password, user.getPassword())){throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "패스워드가 일치하지 않습니다.");}
         userRepository.delete(user);
+    }
+
+    public User getUserByToken(HttpServletRequest request){
+        String token = request.getHeader("Authorization").substring(7);
+        String sub = jwtTokenProvider.getTokenSubject(token);
+        return userRepository.findUserByMailOrElseThrow(sub);
     }
 }
