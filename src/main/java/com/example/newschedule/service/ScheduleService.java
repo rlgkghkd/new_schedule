@@ -1,15 +1,20 @@
 package com.example.newschedule.service;
 
 import com.example.newschedule.dto.ScheduleResponseDto;
+import com.example.newschedule.entity.BaseEntity;
 import com.example.newschedule.entity.Schedule;
 import com.example.newschedule.repository.ScheduleRepository;
 import com.example.newschedule.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -26,8 +31,9 @@ public class ScheduleService {
         return new ScheduleResponseDto(saved);
     }
 
-    public List<ScheduleResponseDto> findAll() {
-        return scheduleRepository.findAll().stream().map(ScheduleResponseDto::new).toList();
+    public List<ScheduleResponseDto> findAll(int index) {
+        Pageable pageable = PageRequest.of(index-1, 10);
+        return scheduleRepository.findAll(pageable).stream().sorted(Comparator.comparing(BaseEntity::getModifiedAt).reversed()).map(ScheduleResponseDto::new).toList();
     }
 
     public ScheduleResponseDto findById(Long id) {

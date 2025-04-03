@@ -26,8 +26,8 @@ public class ScheduleController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ScheduleResponseDto>> findAll(){
-        return new ResponseEntity<>(scheduleService.findAll(), HttpStatus.FOUND);
+    public ResponseEntity<List<ScheduleResponseDto>> findAll(@RequestParam(value = "index", defaultValue = "1") int index){
+        return new ResponseEntity<List<ScheduleResponseDto>>(scheduleService.findAll(index), HttpStatus.FOUND);
     }
 
     @GetMapping("/{id}")
