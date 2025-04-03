@@ -13,10 +13,13 @@ import java.util.Optional;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
+    //id 기반 스케줄 검색
     default Schedule findByIdOrElseThrow(Long id){
         return findById(id).orElseThrow(() ->new ResponseStatusException(HttpStatus.NOT_FOUND, "No schedule has such id " + id));
     }
 
+    //유저에 종속된 모든 스케줄 검색
+    //PagImpl 타입으로 반환
     Optional<List<Schedule>> findAllByUser(User user);
     default PageImpl<Schedule> findAllByUserOrElseThrow(User user, PageRequest pageRequest){
         List<Schedule> scheduleList = findAllByUser(user).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "No schedule own by such user "+ user.getName()));

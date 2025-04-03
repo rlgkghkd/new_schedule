@@ -10,6 +10,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 
+
+//authenticationManagerBuilder가 사용하는 유저 디테일 서비스
+//jwt토큰을 생성할 때 유저의 정보를 인증객체 형태로 보내줌
+//유저의 이름 대신 유저의 메일 사용
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {

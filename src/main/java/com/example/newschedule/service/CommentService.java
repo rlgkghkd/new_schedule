@@ -31,7 +31,12 @@ public class CommentService {
     private final ScheduleRepository scheduleRepository;
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
-
+    
+    //댓글 생성
+    //scheduleRepository에서 스케줄 가져옴
+    //유저 정보는 HttpServletRequest으로 받은 jwt 토큰 복호화
+    //jwt 토큰의 sub은 소유주의 메일주소로 되어있음
+    //comment 객체를 생성하고 종속할 스케줄, 유저를 세팅한 뒤 저장
     public CommentResponseDto saveComment(Long scheduleId, String contents, HttpServletRequest request) {
         Schedule schedule= scheduleRepository.findByIdOrElseThrow(scheduleId);
 
@@ -47,16 +52,25 @@ public class CommentService {
         return new CommentResponseDto(saved);
     }
 
+    //댓글 전부 검색
+    //인덱스는 받은 숫자에서 -1
+    //리포지토리에 PageRequest와 함께 넘겨줌
+    //반환 받은 객체는 PageImpl<Comment> 타입, dto로 매핑하고 리스트로 전환해 반환함
     public List<CommentResponseDto> findAllBySchedule(Long scheduleId, int index) {
         PageRequest pageRequest = PageRequest.of(index-1, 10);
         Schedule schedule = scheduleRepository.findByIdOrElseThrow(scheduleId);
         return commentRepository.findAllByScheduleOrElseThorw(schedule, pageRequest).stream().map(CommentResponseDto::new).toList();
     }
 
+    //댓글 id로 검색
     public CommentResponseDto findById(Long id) {
         return new CommentResponseDto(commentRepository.findByIdOrElseThrow(id));
     }
 
+    //댓글 수정
+    //수정할 댓글은 id로 검색
+    //수정할 댓글의 소유 유저를 jwt토큰 소유 유저와 비교, 일치하면 수정
+    //복호화 한 jwt 토큰의 sub이 로그인 유저의 메일
     @Transactional
     public void updateComment(Long id, String contents, HttpServletRequest request) {
         Comment comment = commentRepository.findByIdOrElseThrow(id);
@@ -69,6 +83,9 @@ public class CommentService {
         if (!contents.isEmpty()){comment.setContents(contents);}
     }
 
+    //댓글 삭제
+    //삭제할 댓글은 id로 검색
+    //삭제할 댓글의 소유 유저를 jwt토큰 소유 유저와 비교, 일치하면 삭제
     @Transactional
     public void deleteComment(Long id, HttpServletRequest request) {
         Comment comment = commentRepository.findByIdOrElseThrow(id);

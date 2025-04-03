@@ -14,6 +14,8 @@ import java.util.Optional;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
 
+    //스케줄에 종속된 모든 댓글 검색
+    //PageImpl 타입으로 페이징 해서 반환함.
     Optional<List<Comment>> findAllBySchedule(Schedule schedule);
     default PageImpl<Comment> findAllByScheduleOrElseThorw(Schedule schedule, PageRequest pageRequest){
         List<Comment> commentList = findAllBySchedule(schedule).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"No comment was made on schedule " + schedule.getTitle()));
@@ -23,6 +25,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     }
 
 
+    //Id 기반 댓글 검색
     default Comment findByIdOrElseThrow(Long id){
         return findById(id).orElseThrow(() ->new ResponseStatusException(HttpStatus.NOT_FOUND, "No comment has such id " + id));
     }

@@ -26,11 +26,18 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
     private final Key key;
 
+    //jwt 토큰 제공자 생성자
+    //$ openssl rand -hex 32로 생성한 키
+    //받은 키를 BASE64로 디코드해서 키로 사용
     public JwtTokenProvider(@Value("${jwt.secret.key}") String secretKey){
         byte[] keyByte= Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyByte);
     }
 
+    //토큰 생성
+    //전달받은 인증객체로 토큰 생성
+    //엑세스 토큰은 토큰 subject와 기타 클레임, 수명을 지정해줌. 비밀키로 서명해서 압축
+    //리프레시 토큰은 수명만 지정해서 서명함
     public JwtTokenDto makeToken(Authentication authen){
         String author= authen.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
         long now = (new Date()).getTime();
@@ -40,6 +47,13 @@ public class JwtTokenProvider {
         return new JwtTokenDto("Bearer", accToken, refToken);
     }
 
+    //토큰에 검증정보를 더함
+    //토큰을 복호화해서 클레임을 받음
+    //받은 클레임에 auth 정보가 비어있으면 예외처리
+    //autho는 유저가 가진 roles 현재는 임의로 3개 생성해주었음.
+    //pricipal은 유저 정보. 클레임에서 subject를 가져옴
+    //반환되는 토큰은 pricipal, credentials, autho로 생성됨
+    //credentials은 빈 문자열
     public Authentication getAuthen(String accToken){
         Claims claims = parseClaims(accToken);
         if (claims.get("auth") == null){ throw new RuntimeException("권한이 없는 토큰입니다.");}
@@ -48,11 +62,14 @@ public class JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(principal, "", autho);
     }
 
+    //토큰에서 subject 추출, subject는 토큰 생성한 유저의 메일로 설정되어있음.
     public String getTokenSubject(String token){
         Claims claims = parseClaims(token);
         return claims.getSubject();
     }
 
+    //토큰 검증
+    //키를 이용해 복호화, 토큰의 타입 일치 여부, 만료여부, 지원여부, 클레임 을 검사함.
     public boolean validateToken(String token){
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
@@ -64,6 +81,7 @@ public class JwtTokenProvider {
         return false;
     }
 
+    //토큰 복호화
     private Claims parseClaims (String accToken){
         try {
             return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accToken).getBody();
