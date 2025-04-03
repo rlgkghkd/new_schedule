@@ -48,6 +48,11 @@ public class JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(principal, "", autho);
     }
 
+    public String getTokenSubject(String token){
+        Claims claims = parseClaims(token);
+        return claims.getSubject();
+    }
+
     public boolean validateToken(String token){
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);

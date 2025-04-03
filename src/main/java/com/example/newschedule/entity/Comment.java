@@ -7,9 +7,14 @@ import lombok.Setter;
 
 @Entity
 @Getter
-@Table(name = "schedule")
+@Table(name = "comment")
 @NoArgsConstructor
 public class Comment extends BaseEntity{
+
+    @Setter
+    @ManyToOne
+    @JoinColumn(name = "schedule_id")
+    private Schedule schedule;
 
     @Setter
     @ManyToOne
@@ -17,15 +22,10 @@ public class Comment extends BaseEntity{
     private User user;
 
     @Setter
-    @Column(nullable = false)
-    private String title;
-
-    @Setter
     @Column(columnDefinition = "longtext")
     private String contents;
 
-    public Comment(String title, String contents){
-        this.title = title;
+    public Comment(String contents){
         this.contents= contents;
     }
 }
