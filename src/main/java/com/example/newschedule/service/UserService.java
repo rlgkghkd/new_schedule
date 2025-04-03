@@ -5,11 +5,13 @@ import com.example.newschedule.dto.JwtTokenDto;
 import com.example.newschedule.dto.UserResponseDto;
 import com.example.newschedule.entity.User;
 import com.example.newschedule.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,24 +44,39 @@ public class UserService {
     }
 
     @Transactional
-    public void updatePassword(Long id, String oldPassword, String newPassword) {
-        User user = userRepository.findByIdOrElseThrow(id);
-        if (!user.getPassword().equals(oldPassword)){throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "패스워드가 일치하지 않습니다.");}
-        user.setPassword(newPassword);
+    public void updatePassword(HttpServletRequest request, String oldPassword, String newPassword) {
+
+        String token = request.getHeader("Authorization").substring(7);
+        String sub = jwtTokenProvider.getTokenSubject(token);
+        User user = userRepository.findUserByMailOrElseThrow(sub);
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        if (!encoder.matches(oldPassword, user.getPassword())){throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "패스워드가 일치하지 않습니다.");}
+        user.setPassword(encoder.encode(newPassword));
     }
 
     @Transactional
-    public void updateMail(Long id, String password, String mail) {
-        User user = userRepository.findByIdOrElseThrow(id);
-        if (!user.getPassword().equals(password)){throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "패스워드가 일치하지 않습니다.");}
+    public void updateMail(HttpServletRequest request, String password, String mail) {
+        String token = request.getHeader("Authorization").substring(7);
+        String sub = jwtTokenProvider.getTokenSubject(token);
+        User user = userRepository.findUserByMailOrElseThrow(sub);
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        if (!encoder.matches(password, user.getPassword())){throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "패스워드가 일치하지 않습니다.");}
         user.setMail(mail);
     }
 
     @Transactional
-    public void deleteUser(Long id, String password) {
-        User user = userRepository.findByIdOrElseThrow(id);
-        if (!user.getPassword().equals(password)){throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "패스워드가 일치하지 않습니다.");}
+    public void deleteUser(HttpServletRequest request, String password) {
+        String token = request.getHeader("Authorization").substring(7);
+        String sub = jwtTokenProvider.getTokenSubject(token);
+        User user = userRepository.findUserByMailOrElseThrow(sub);
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        if (!encoder.matches(password, user.getPassword())){throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "패스워드가 일치하지 않습니다.");}
         userRepository.delete(user);
     }
-
 }

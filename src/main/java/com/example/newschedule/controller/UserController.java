@@ -2,6 +2,7 @@ package com.example.newschedule.controller;
 
 import com.example.newschedule.dto.*;
 import com.example.newschedule.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,27 +29,27 @@ public class UserController {
         return new ResponseEntity<>(userResponseDto, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping
     public ResponseEntity<UserResponseDto> findById(@PathVariable Long id){
         UserResponseDto userResponseDto= userService.findById(id);
         return new ResponseEntity<>(userResponseDto, HttpStatus.FOUND);
     }
 
-    @PatchMapping("/password/{id}")
-    public ResponseEntity<Void> updatePassword(@PathVariable Long id, @RequestBody @Validated UpdateUserPasswordRequestDto dto){
-        userService.updatePassword(id, dto.getOldPassword(), dto.getNewPassword());
+    @PatchMapping("/password")
+    public ResponseEntity<Void> updatePassword(@RequestBody @Validated UpdateUserPasswordRequestDto dto, HttpServletRequest request){
+        userService.updatePassword(request, dto.getOldPassword(), dto.getNewPassword());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PatchMapping("/mail/{id}")
-    public ResponseEntity<Void> updateMail(@PathVariable Long id, @RequestBody @Validated UpdateUserEmailRequestDto dto){
-        userService.updateMail(id, dto.getPassword(), dto.getMail());
+    @PatchMapping("/mail")
+    public ResponseEntity<Void> updateMail(@RequestBody @Validated UpdateUserEmailRequestDto dto, HttpServletRequest request){
+        userService.updateMail(request, dto.getPassword(), dto.getMail());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id, @RequestBody @Validated DeleteUserRequestDto dto){
-        userService.deleteUser(id, dto.getPassword());
+    public ResponseEntity<Void> deleteUser(@RequestBody @Validated DeleteUserRequestDto dto, HttpServletRequest request){
+        userService.deleteUser(request, dto.getPassword());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

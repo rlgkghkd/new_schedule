@@ -9,11 +9,6 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<User> findUserByName(String name);
-    default User findUserByNameOrElseThrow(String name){
-        return findUserByName(name).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "No User has such name " + name));
-    }
-
     default User findByIdOrElseThrow(Long id){
         return findById(id).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "No User has such id " + id));
     }
@@ -22,5 +17,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
     default User findUserByMailOrElseThrow(String mail){
         return findUserByMail(mail).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "No User has such mail " + mail));
     }
-
 }

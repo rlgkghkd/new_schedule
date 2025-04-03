@@ -22,9 +22,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private UserDetails creteUserDetails(User user){
         return User.builder()
-                .name(user.getName())
+                .name(user.getMail())
                 .password(user.getPassword())
-                .mail(user.getMail())
+                .mail(user.getName())
                 .roles(Arrays.stream(user.getRoles().toArray(new String[0])).toList())
                 .build();
     }

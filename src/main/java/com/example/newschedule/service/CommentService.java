@@ -37,7 +37,7 @@ public class CommentService {
 
         String token = request.getHeader("Authorization").substring(7);
         String sub = jwtTokenProvider.getTokenSubject(token);
-        User user = userRepository.findUserByNameOrElseThrow(sub);
+        User user = userRepository.findUserByMailOrElseThrow(sub);
 
         Comment comment = new Comment(contents);
         comment.setSchedule(schedule);
@@ -63,7 +63,7 @@ public class CommentService {
 
         String token = request.getHeader("Authorization").substring(7);
         String sub = jwtTokenProvider.getTokenSubject(token);
-        User user = userRepository.findUserByNameOrElseThrow(sub);
+        User user = userRepository.findUserByMailOrElseThrow(sub);
         if(!comment.getUser().equals(user)){throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "해당 댓글에 대한 권한이 없습니다.");}
 
         if (!contents.isEmpty()){comment.setContents(contents);}
@@ -75,7 +75,7 @@ public class CommentService {
 
         String token = request.getHeader("Authorization").substring(7);
         String sub = jwtTokenProvider.getTokenSubject(token);
-        User user = userRepository.findUserByNameOrElseThrow(sub);
+        User user = userRepository.findUserByMailOrElseThrow(sub);
         if(!comment.getUser().equals(user)){throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "해당 댓글에 대한 권한이 없습니다.");}
 
         commentRepository.delete(comment);
